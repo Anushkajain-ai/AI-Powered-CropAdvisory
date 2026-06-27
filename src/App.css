@@ -1,144 +1,257 @@
+/* ================= GLOBAL ================= */
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, "Times New Roman", Times, serif;
+
   background-image: url("https://c1.wallpaperflare.com/preview/921/100/4/wood-the-leaves-twig-leaf.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
+  min-height: 100vh;
+}
+
+/* ================= APP ================= */
+
+.app {
   min-height: 100vh;
 
-}
-
-.container {
   display: flex;
-  align-items: center;
-  min-height: 100vh;
-  padding-left: 100px;
-}
-
-.form-box {
-  background: white;
-  padding: 30px;
-  width: 370px;
-  border-radius: 10px;
-  box-shadow: 0 20px 10px rgba(0,0,0,0.1);
-  background: rgba(255,255,255,0.7);
-  margin-left: -50px; /* moves box right */
-}
-/* TITLE */
-h1 {
-  position: absolute;
-  left: 120px;
-  top: 11px;
-  color: rgb(255, 255, 255);
-  font-size: 45px;
-  margin: 0;
-  z-index: 2;
-}
-/* LABEL TEXT (Select Crop / Disease) */
-label {
-  display: block;
-  margin-top: 5px;   /* GAP INCREASE */
-  margin-bottom: 5px;
-  color: #21476d;     /* DARK BLUE instead of light grey */
-  font-weight: bold;
-  font-size: 20px;
-}
-/* DROPDOWNS */
-select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 18px;   /* GAP INCREASE */
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: rgb(40, 124, 58);
-  font-size: 16px;
-  font-family: "Poppins", sans-serif;
-  font-weight: bold;
-
-}
-/* BUTTON */
-button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  background: green;
-  color: white;
-  border-radius: 6px;
-  font-size: 16px;
-  margin-top: 30px;   /* GAP ABOVE BUTTON */
-  cursor: pointer;
-  font-family: "Poppins", sans-serif;
-  font-weight: bold;  
-}
-button:hover {
-  background: darkgreen;
-}
-/* FILE UPLOAD SECTION */
-.upload-box {
-  margin-top: 10px;
-  border: 2px dashed #2e6330;
-  border-radius: 10px;
-  text-align: center;
-  cursor: pointer;
-  background: #f9fff9;
-  position: relative;
-  min-height: 120px;
-  overflow: hidden;
-  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  padding: 20px;
 }
 
-/* 👇 force correct text color */
-.upload-box p {
+/* ================= TITLE ================= */
+
+h1 {
+  color: white;
+  text-align: center;
+
+  margin-bottom: 20px;
+
+  font-size: 2.3rem;
+}
+
+/* ================= CARD ================= */
+
+.form-box {
+  position: relative;
+
+  width: 100%;
+  max-width: 500px;
+
+  padding: 24px;
+
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(8px);
+
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+/* ================= TOGGLE ================= */
+
+.toggle-btn {
+  position: absolute;
+
+  top: 15px;
+  right: 15px;
+
+  width: auto !important;
+  min-width: 90px;
+
+  padding: 8px 12px;
+
   margin: 0;
-  font-weight: 600;
-  color: #6d6b6b; /* light grey */
-  cursor: pointer;
+
+  background: #222;
+  color: white;
+
+  border-radius: 8px;
 }
 
+.toggle-btn:hover {
+  background: #111;
+}
+
+/* ================= LABEL ================= */
+
+label {
+  font-size: 15px;
+  font-weight: bold;
+
+  color: #21476d;
+
+  margin-top: 8px;
+}
+
+/* ================= SELECT ================= */
+
+select {
+  width: 100%;
+
+  padding: 10px;
+
+  border-radius: 8px;
+
+  border: 1px solid #ccc;
+
+  font-size: 14px;
+
+  margin-bottom: 10px;
+}
+
+/* ================= UPLOAD ================= */
+
+.upload-box {
+  position: relative;
+
+  border: 2px dashed #2e6330;
+
+  border-radius: 10px;
+
+  background: #f9fff9;
+
+  padding: 15px;
+
+  text-align: center;
+
+  margin-top: 10px;
+}
+
+.upload-box p,
 .upload-box span {
-  font-size: 16px;
-  color: #6d6b6b; /* lighter grey */
-  cursor: pointer;
+  color: #666;
 }
-img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 3px solid #2e6330;
-  margin-top: 15px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-.preview-image {
-  width: 90%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: none;
-  margin: 0;
 
+/* ================= IMAGE ================= */
+
+.preview-image {
+  width: 100%;
+  max-height: 220px;
+
+  object-fit: cover;
+
+  border-radius: 10px;
 }
+
+/* ================= REMOVE ================= */
 
 .remove-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
 
-  width: 28px;
-  height: 28px;
-  padding: 0;
+  top: 10px;
+  right: 10px;
 
-  border: none;
+  width: 30px !important;
+  height: 30px;
+
+  margin: 0;
+
   border-radius: 50%;
 
   background: red;
+}
+
+/* ================= BUTTONS ================= */
+
+button {
+  width: 100%;
+
+  padding: 12px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: green;
   color: white;
 
+  font-size: 15px;
+
   cursor: pointer;
-  z-index: 10;
+}
+
+button:hover {
+  background: darkgreen;
+}
+
+/* ================= DARK MODE ================= */
+
+.dark .form-box {
+  background: rgba(25, 25, 25, 0.92);
+}
+
+.dark label {
+  color: #e5e5e5;
+}
+
+.dark select {
+  background: #2c2c2c;
+  color: white;
+  border-color: #555;
+}
+
+.dark .upload-box {
+  background: #1e1e1e;
+  border-color: #555;
+}
+
+.dark .upload-box p,
+.dark .upload-box span {
+  color: #ccc;
+}
+
+/* ================= TABLET ================= */
+
+@media (max-width: 768px) {
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .form-box {
+    max-width: 90%;
+  }
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 375px) {
+
+  .app {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .form-box {
+    padding: 18px;
+  }
+
+  select,
+  button {
+    font-size: 13px;
+  }
+
+  .toggle-btn {
+    min-width: 80px;
+    font-size: 12px;
+  }
 }

@@ -17,7 +17,8 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  // Upload image
+  const [darkMode, setDarkMode] = useState(false);
+
   const handleImageUpload = (e) => {
     const selectedFile = e.target.files[0];
 
@@ -27,13 +28,11 @@ function App() {
     }
   };
 
-  // Remove image
   const removeImage = () => {
     setFile(null);
     setPreview(null);
   };
 
-  // Predict logic
   const handlePredict = () => {
     if (!file) {
       setShowToast(true);
@@ -51,10 +50,18 @@ function App() {
   };
 
   return (
-    <div className="container">
+    <div className={`app ${darkMode ? "dark" : "light"}`}>
       <h1>Crop Disease Detection</h1>
 
       <div className="form-box">
+
+        {/* Theme Toggle */}
+        <button
+          className="toggle-btn"
+          onClick={() => setDarkMode(!darkMode)}
+        >
+          {darkMode ? "☀ Light" : "🌙 Dark"}
+        </button>
 
         {/* Crop Selection */}
         <label>Select Crop</label>
@@ -87,11 +94,19 @@ function App() {
         <div className="upload-box">
           {preview ? (
             <>
-              <button className="remove-btn" onClick={removeImage}>
+              <button
+                type="button"
+                className="remove-btn"
+                onClick={removeImage}
+              >
                 ✕
               </button>
 
-              <img src={preview} alt="preview" className="preview-image" />
+              <img
+                src={preview}
+                alt="preview"
+                className="preview-image"
+              />
             </>
           ) : (
             <label htmlFor="fileInput">
@@ -112,8 +127,11 @@ function App() {
         {/* Loader */}
         {loading && <Loader text="Analyzing image..." />}
 
-        {/* Predict Button (NOW USING COMPONENT → CLEAN UI) */}
-        <Button text="Predict Disease" onClick={handlePredict} />
+        {/* Predict Button */}
+        <Button
+          text="Predict Disease"
+          onClick={handlePredict}
+        />
 
         {/* Toast */}
         {showToast && (
@@ -128,12 +146,16 @@ function App() {
           <Modal onClose={() => setShowModal(false)}>
             <h2>Prediction Result</h2>
 
-            <p style={{ fontWeight: "bold", fontSize: "18px" }}>
+            <p
+              style={{
+                fontWeight: "bold",
+                fontSize: "18px",
+              }}
+            >
               {result}
             </p>
           </Modal>
         )}
-
       </div>
     </div>
   );
