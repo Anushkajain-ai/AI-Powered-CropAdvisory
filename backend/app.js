@@ -1,8 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 
 dotenv.config();
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
 const cropRoutes = require("./routes/cropRoutes");
 const errorHandler = require("./middleware/errorHandler");

@@ -1,86 +1,87 @@
-const crops = require("../data/crops");
+const Crop = require("../models/Crop");
 
-// GET all crops
-const getAllCrops = (req, res) => {
-  res.status(200).json(crops);
-};
-
-// GET single crop
-const getCropById = (req, res) => {
-  const crop = crops.find(c => c.id === parseInt(req.params.id));
-
-  if (!crop) {
-    return res.status(404).json({
-      message: "Crop not found"
-    });
+// GET ALL CROPS
+const getAllCrops = async (req, res) => {
+  try {
+    const data = await Crop.find();
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  res.status(200).json(crop);
 };
 
-// POST new crop
-const addCrop = (req, res) => {
-  const { crop, disease, advice } = req.body;
+// GET SINGLE CROP
+const getCropById = async (req, res) => {
+  try {
+    const data = await Crop.findById(req.params.id);
 
-  const newCrop = {
-    id: crops.length + 1,
-    crop,
-    disease,
-    advice
-  };
+    if (!data) {
+      return res.status(404).json({ message: "Crop not found" });
+    }
 
-  crops.push(newCrop);
-
-  res.status(201).json(newCrop);
-};
-
-// PUT update crop
-const updateCrop = (req, res) => {
-  const id = parseInt(req.params.id);
-
-  const existing = crops.find(c => c.id === id);
-
-  if (!existing) {
-    return res.status(404).json({
-      message: "Crop not found"
-    });
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  existing.crop = req.body.crop;
-  existing.disease = req.body.disease;
-  existing.advice = req.body.advice;
-
-  res.status(200).json(existing);
 };
 
-// DELETE crop
-const deleteCrop = (req, res) => {
-  const id = parseInt(req.params.id);
-
-  const index = crops.findIndex(c => c.id === id);
-
-  if (index === -1) {
-    return res.status(404).json({
-      message: "Crop not found"
-    });
+// CREATE CROP
+const addCrop = async (req, res) => {
+  try {
+    const newCrop = await Crop.create(req.body);
+    res.status(201).json(newCrop);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  crops.splice(index, 1);
-
-  res.status(200).json({
-    message: "Crop deleted successfully"
-  });
 };
 
-// SEARCH crop
-const searchCrop = (req, res) => {
-  const keyword = req.query.crop?.toLowerCase();
+// UPDATE CROP
+const updateCrop = async (req, res) => {
+  try {
+    const updated = await Crop.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
 
-  const result = crops.filter(c =>
-    c.crop.toLowerCase().includes(keyword)
-  );
+    if (!updated) {
+      return res.status(404).json({ message: "Crop not found" });
+    }
 
-  res.status(200).json(result);
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE CROP
+const deleteCrop = async (req, res) => {
+  try {
+    const deleted = await Crop.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Crop not found" });
+    }
+
+    res.status(200).json({ message: "Crop deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// SEARCH CROP
+const searchCrop = async (req, res) => {
+  try {
+    const keyword = req.query.crop || "";
+
+    const result = await Crop.find({
+      crop: { $regex: keyword, $options: "i" }
+    });
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 module.exports = {
