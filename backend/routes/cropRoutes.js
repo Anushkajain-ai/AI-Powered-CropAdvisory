@@ -8,6 +8,7 @@ const {
   deleteCrop,
   searchCrop
 } = require("../controllers/cropController");
+const protect = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const router = express.Router();
 router.get("/search", searchCrop);
 
 // CRUD Routes
-router.get("/", getAllCrops);
+router.get("/", protect, getAllCrops);
 
 router.get("/:id", getCropById);
 
