@@ -18,6 +18,7 @@ mongoose
 const cropRoutes = require("./routes/cropRoutes");
 const authRoutes = require("./routes/authRoutes");
 const errorHandler = require("./middleware/errorHandler");
+const aiRoutes = require("./routes/aiRoutes");
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.get("/", (req, res) => {
 app.use("/api/crops", cropRoutes);
 
 app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Error Handling Middleware
 

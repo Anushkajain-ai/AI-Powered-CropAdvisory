@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import { logoutUser } from "./api/authApi";
+import ReactMarkdown from "react-markdown";
 
 import {
   Routes,
@@ -9,7 +10,10 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import { fetchCropDisease } from "./api/cropApi";
+import {
+  fetchCropDisease,
+  analyzeDisease,
+} from "./api/cropApi";
 
 import Button from "./components/ui/Button";
 import Loader from "./components/ui/Loader";
@@ -23,7 +27,6 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./pages/ProtectedRoute";
 
 function CropDiseasePage() {
-
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -31,18 +34,17 @@ function CropDiseasePage() {
     navigate("/login");
   };
 
-  
-
   // =======================
   // STATES
   // =======================
-  
+
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
   const [loading, setLoading] = useState(false);
 
   const [selectedCrop, setSelectedCrop] = useState("");
+  const [selectedDisease, setSelectedDisease] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -60,12 +62,122 @@ function CropDiseasePage() {
   const [control, setControl] = useState([]);
   const [chemical, setChemical] = useState([]);
   const [prevention, setPrevention] = useState([]);
+  const [aiReport, setAiReport] = useState("");
+
+  // =======================
+  // DISEASE DATA
+  // =======================
+
+  const cropDiseases = {
+    Tomato: [
+      {
+        name: "Late Blight",
+        symptoms: "Dark brown water-soaked spots on leaves and fruits."
+      },
+      {
+        name: "Early Blight",
+        symptoms: "Brown circular spots with ring-like patterns on older leaves."
+      },
+      {
+        name: "Fusarium Wilt",
+        symptoms: "Yellowing and wilting of lower leaves."
+      },
+      {
+        name: "Leaf Mold",
+        symptoms: "Yellow patches with mold underneath leaves."
+      },
+      {
+        name: "Bacterial Spot",
+        symptoms: "Small dark spots on leaves and fruits."
+      }
+    ],
+
+    Potato: [
+      {
+        name: "Late Blight",
+        symptoms: "Dark lesions on leaves and rotting tubers."
+      },
+      {
+        name: "Early Blight",
+        symptoms: "Brown concentric rings on leaves."
+      },
+      {
+        name: "Potato Scab",
+        symptoms: "Rough corky patches on potato skin."
+      },
+      {
+        name: "Black Scurf",
+        symptoms: "Black fungal patches on potato surface."
+      }
+    ],
+
+    Rice: [
+      {
+        name: "Rice Blast",
+        symptoms: "Diamond-shaped gray spots on leaves."
+      },
+      {
+        name: "Bacterial Blight",
+        symptoms: "Yellowing from leaf tips that spreads downward."
+      },
+      {
+        name: "Brown Spot",
+        symptoms: "Brown oval spots on leaves."
+      },
+      {
+        name: "Sheath Blight",
+        symptoms: "Large green-gray lesions on leaf sheaths."
+      }
+    ],
+
+    Wheat: [
+      {
+        name: "Stem Rust",
+        symptoms: "Reddish-brown powdery pustules on stems."
+      },
+      {
+        name: "Leaf Rust",
+        symptoms: "Orange-brown spots mainly on leaves."
+      },
+      {
+        name: "Powdery Mildew",
+        symptoms: "White powder-like coating on leaves."
+      },
+      {
+        name: "Loose Smut",
+        symptoms: "Black powder replacing wheat grains."
+      }
+    ],
+
+    Maize: [
+      {
+        name: "Northern Corn Leaf Blight",
+        symptoms: "Long cigar-shaped gray lesions."
+      },
+      {
+        name: "Corn Smut",
+        symptoms: "Large swollen galls on ears and leaves."
+      },
+      {
+        name: "Gray Leaf Spot",
+        symptoms: "Long rectangular gray lesions."
+      },
+      {
+        name: "Common Rust",
+        symptoms: "Small reddish-brown pustules on leaves."
+      }
+    ]
+  };
+
+  const selectedDiseaseInfo =
+    cropDiseases[selectedCrop]?.find(
+      (item) => item.name === selectedDisease
+    );
 
   // =======================
   // IMAGE UPLOAD
   // =======================
-
-  const handleImageUpload = (e) => {
+    const handleImageUpload = (e) => {
     const selectedFile = e.target.files[0];
 
     if (selectedFile) {
@@ -78,101 +190,135 @@ function CropDiseasePage() {
   // REMOVE IMAGE
   // =======================
 
-  const removeImage = () => {
-    setFile(null);
-    setPreview(null);
-  };
+const removeImage = () => {
+  setFile(null);
+  setPreview(null);
+  setAiReport("");
+};
 
   // =======================
   // PREDICT
   // =======================
 
-  const handlePredict = async () => {
-    if (!file) {
-      setShowToast(true);
+const handlePredict = async () => {
+
+  if (!file) {
+    setShowToast(true);
+    return;
+  }
+
+  if (!selectedCrop) {
+    alert("Please select a crop.");
+    return;
+  }
+
+  if (!selectedDisease) {
+    alert("Please select a disease.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+
+    // Fetch disease information from MongoDB
+    const data = await fetchCropDisease(selectedCrop);
+
+    if (!data || data.length === 0) {
+      alert("No disease data found.");
+      setLoading(false);
       return;
     }
 
-    if (!selectedCrop) {
-      alert("Please select a crop.");
-      return;
-    }
+    const crop =
+      data.find(
+        (item) =>
+          item.disease.toLowerCase() ===
+          selectedDisease.toLowerCase()
+      ) || data[0];
 
-    setLoading(true);
+    // Fill existing modal data
+    setDisease(crop.disease);
+    setDescription(crop.description);
+    setCause(crop.cause || []);
+    setSymptoms(crop.symptoms || []);
+    setControl(crop.control || []);
+    setChemical(crop.chemical || []);
+    setPrevention(crop.prevention || []);
 
-    try {
-      const data = await fetchCropDisease(selectedCrop);
+    // Ask AI for a detailed report
+// Ask AI for a detailed report
+try {
+  const ai = await analyzeDisease(
+    selectedCrop,
+    selectedDisease,
+    selectedDiseaseInfo?.symptoms || ""
+  );
 
-      if (data.length === 0) {
-        alert("No disease data found.");
-        setLoading(false);
-        return;
-      }
+  setAiReport(ai.response);
+} catch (err) {
+  console.error("AI Error:", err);
+  setAiReport("AI report could not be generated.");
+}
 
-      const crop = data[0];
+setShowModal(true);
 
-      setDisease(crop.disease);
-      setDescription(crop.description);
-      setCause(crop.cause);
-      setSymptoms(crop.symptoms);
-      setControl(crop.control);
-      setChemical(crop.chemical);
-      setPrevention(crop.prevention);
+  } catch (err) {
 
-      setShowModal(true);
-    } catch (err) {
-      console.error(err);
-      alert("Unable to connect to backend.");
-    }
+    console.error(err);
+    alert("Unable to connect to backend.");
 
-    setLoading(false);
-  };
+  }
+
+  setLoading(false);
+};
 
   // =======================
   // UI
   // =======================
 
   return (
-        <>
-      <div style={{ textAlign: "center", marginTop: "20px" }}>
+    <>
+          <div
+        style={{
+          textAlign: "center",
+          marginTop: "20px",
+        }}
+      >
+        <button
+          onClick={() => setShowManager(false)}
+          style={{
+            marginRight: "10px",
+            padding: "10px 20px",
+          }}
+        >
+          🌱 Disease Detection
+        </button>
 
-  <button
-    onClick={() => setShowManager(false)}
-    style={{
-      marginRight: "10px",
-      padding: "10px 20px"
-    }}
-  >
-    🌱 Disease Detection
-  </button>
+        <button
+          onClick={() => setShowManager(true)}
+          style={{
+            marginRight: "10px",
+            padding: "10px 20px",
+          }}
+        >
+          🌾 Crop Manager
+        </button>
 
-
-  <button
-    onClick={() => setShowManager(true)}
-    style={{
-      marginRight: "10px",
-      padding: "10px 20px"
-    }}
-  >
-    🌾 Crop Manager
-  </button>
-
-
-  <button
-    onClick={handleLogout}
-    style={{
-      padding: "10px 20px",
-      background: "red",
-      color: "white",
-      border: "none",
-      borderRadius: "5px",
-      cursor: "pointer"
-    }}
-  >
-    Logout
-  </button>
-
-</div>
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: "10px 20px",
+            background: "red",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Logout
+        </button>
+      </div>
 
       {showManager ? (
         <CropManager />
@@ -191,9 +337,15 @@ function CropDiseasePage() {
             <label>Select Crop</label>
 
             <select
-              value={selectedCrop}
-              onChange={(e) => setSelectedCrop(e.target.value)}
-            >
+  value={selectedCrop}
+  onChange={(e) => {
+setSelectedCrop(e.target.value);
+setSelectedDisease("");
+setFile(null);
+setPreview(null);
+setAiReport("");
+  }}
+>
               <option value="">Choose Crop</option>
               <option>Tomato</option>
               <option>Potato</option>
@@ -203,22 +355,73 @@ function CropDiseasePage() {
             </select>
 
             <label>Select Disease</label>
+                        <select
+              value={selectedDisease}
+              onChange={(e) => {
+  setSelectedDisease(e.target.value);
+  setAiReport("");
+}}
+              disabled={!selectedCrop}
+            >
+              <option value="">
+                {selectedCrop
+                  ? "Choose Disease"
+                  : "Select Crop First"}
+              </option>
 
-            <select>
-              <option>Select the problem</option>
-              <option>Stem Rust</option>
-              <option>Powdery Mildew</option>
-              <option>Rice Blast</option>
-              <option>Bacterial Blight</option>
-              <option>Late Blight</option>
-              <option>Fusarium Wilt</option>
-              <option>Early Blight</option>
-              <option>Potato Scab</option>
-              <option>Northern Corn Leaf Blight</option>
-              <option>Corn Smut</option>
+              {selectedCrop &&
+                cropDiseases[selectedCrop].map((item) => (
+                  <option
+                    key={item.name}
+                    value={item.name}
+                  >
+                    {item.name}
+                  </option>
+                ))}
             </select>
 
-            <div className="upload-box">
+            {selectedDiseaseInfo && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  marginBottom: "20px",
+                  padding: "15px",
+                  background: darkMode ? "#2b2b2b" : "#f4fff4",
+                  border: "1px solid #4CAF50",
+                  borderRadius: "10px",
+                  color: darkMode ? "#fff" : "#000",
+                }}
+              >
+                <h3
+                  style={{
+                    marginTop: 0,
+                    color: "#2e7d32",
+                  }}
+                >
+                  🔍 Symptoms Preview
+                </h3>
+
+                <strong>{selectedDisease}</strong>
+
+                <p
+                  style={{
+                    marginTop: "10px",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  {selectedDiseaseInfo.symptoms}
+                </p>
+
+                <small
+                  style={{
+                    color: darkMode ? "#ccc" : "#666",
+                  }}
+                >
+                  Select an image of your crop to confirm whether it matches these symptoms.
+                </small>
+              </div>
+            )}
+                        <div className="upload-box">
               {preview ? (
                 <>
                   <button
@@ -237,8 +440,8 @@ function CropDiseasePage() {
                 </>
               ) : (
                 <label htmlFor="fileInput">
-                  <p>📁 Upload your image</p>
-                  <span>Click or drag &amp; drop</span>
+                  <p>📁 Upload your crop image</p>
+                  <span>Click or drag & drop</span>
                 </label>
               )}
 
@@ -268,7 +471,12 @@ function CropDiseasePage() {
             )}
 
             {showModal && (
-              <Modal onClose={() => setShowModal(false)}>
+              <Modal
+  onClose={() => {
+    setShowModal(false);
+    setAiReport("");
+  }}
+>
                 <h2
                   style={{
                     color: "#2e7d32",
@@ -329,8 +537,21 @@ function CropDiseasePage() {
                     <li key={index}>{item}</li>
                   ))}
                 </ul>
+                <hr />
 
-              </Modal>
+<h2
+  style={{
+    marginTop: "30px",
+    color: "#2e7d32",
+  }}
+>
+  🤖 AI Detailed Report
+</h2>
+
+<div className="ai-report">
+  <ReactMarkdown>{aiReport}</ReactMarkdown>
+</div>
+                              </Modal>
             )}
           </div>
         </div>
@@ -338,19 +559,19 @@ function CropDiseasePage() {
     </>
   );
 }
-
 function App() {
   return (
     <Routes>
+
       <Route
-  path="/"
-  element={
-    <Navigate
-      to="/dashboard"
-      replace
-    />
-  }
-/>
+        path="/"
+        element={
+          <Navigate
+            to="/dashboard"
+            replace
+          />
+        }
+      />
 
       <Route
         path="/dashboard"
@@ -360,7 +581,8 @@ function App() {
           </ProtectedRoute>
         }
       />
-            <Route
+
+      <Route
         path="/login"
         element={<Login />}
       />
@@ -379,7 +601,9 @@ function App() {
           />
         }
       />
+
     </Routes>
   );
 }
+
 export default App;
