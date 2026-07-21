@@ -440,7 +440,7 @@ setAiReport("");
                 </>
               ) : (
                 <label htmlFor="fileInput">
-                  <p>📁 Upload your crop image</p>
+                  <p>📷 Upload a clear crop image</p>
                   <span>Click or drag & drop</span>
                 </label>
               )}
