@@ -455,7 +455,7 @@ setAiReport("");
             </div>
 
             {loading && (
-              <Loader text="🔍 Analyzing crop image..." />
+              <Loader text="🤖 AI is analyzing your crop image..." />
             )}
 
             <Button
